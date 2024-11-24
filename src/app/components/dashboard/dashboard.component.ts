@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 import * as L from 'leaflet';
 import 'leaflet-draw';
@@ -19,13 +19,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   protected address: string;
   protected searchQuery: string = '';
   protected weatherData: any = {
-    alerts: [],
+    alerts: [{
+      description: '',
+    }],
     current: {}
   };
-  protected filteredWeatherData: any;
-  protected totalSavings: number;
+  protected filteredWeatherData: any = [];
+  protected totalSavings: number = 0;
 
-  constructor(private weatherService: WeatherService) { }
+  constructor(private weatherService: WeatherService, private cdr: ChangeDetectorRef) { }
 
   async ngOnInit(): Promise<void> {
     this.initMap();
@@ -135,6 +137,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.weatherData = data;
 
         this.filteredWeatherData = this.weatherService.extractRainData(data.daily);
+        console.log(this.filteredWeatherData)
+        this.addDayData(this.filteredWeatherData);
       },
       (error: HttpErrorResponse) => {
         console.error('Error fetching weather data:', error);
@@ -212,61 +216,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     // Calcula a economia total
     this.totalSavings = consumptionData.reduce((acc, curr, index) => acc + (curr - estimatedConsumptionData[index]), 0);
-
-    new Chart("lineChart", {
-      type: 'line',
-      data: {
-      labels: days, // Rótulos do eixo X (dias)
-      datasets: [
-        {
-        label: 'Consumo Diário (m³)',
-        data: consumptionData, // Dados do eixo Y (consumo)
-        borderColor: '#36A2EB', // Cor da linha
-        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Área preenchida abaixo da linha
-        borderWidth: 2, // Largura da linha
-        tension: 0.4 // Curvatura da linha
-        },
-        {
-        label: 'Consumo Estimado (m³)',
-        data: estimatedConsumptionData, // Dados do eixo Y (consumo estimado)
-        borderColor: '#FF6384', // Cor da linha
-        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Área preenchida abaixo da linha
-        borderWidth: 2, // Largura da linha
-        tension: 0.4 // Curvatura da linha
-        }
-      ]
-      },
-      options: {
-      responsive: true, // Gráfico responsivo
-      plugins: {
-        legend: {
-        display: true,
-        position: 'top' // Posição da legenda
-        },
-        tooltip: {
-        enabled: true // Exibe tooltips ao passar o mouse
-        }
-      },
-      scales: {
-        x: {
-        title: {
-          display: true,
-          text: 'Dias',
-          font: { size: 14 }
-        }
-        },
-        y: {
-        title: {
-          display: true,
-          text: 'Consumo (m³)',
-          font: { size: 14 }
-        },
-        beginAtZero: true // Começa o eixo Y no valor 0
-        }
-      }
-      }
-    });
-
+    this.cdr.detectChanges();
     new Chart("lineChart", {
       type: 'line',
       data: {
@@ -277,6 +227,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             data: consumptionData, // Dados do eixo Y (consumo)
             borderColor: '#36A2EB', // Cor da linha
             backgroundColor: 'rgba(54, 162, 235, 0.2)', // Área preenchida abaixo da linha
+            borderWidth: 2, // Largura da linha
+            tension: 0.4 // Curvatura da linha
+          },
+          {
+            label: 'Consumo Estimado (m³)',
+            data: estimatedConsumptionData, // Dados do eixo Y (consumo estimado)
+            borderColor: '#FF6384', // Cor da linha
+            backgroundColor: 'rgba(255, 99, 132, 0.2)', // Área preenchida abaixo da linha
             borderWidth: 2, // Largura da linha
             tension: 0.4 // Curvatura da linha
           }
@@ -307,11 +265,40 @@ export class DashboardComponent implements OnInit, AfterViewInit {
               text: 'Consumo (m³)',
               font: { size: 14 }
             },
-            beginAtZero: true // Começa o eixo Y no valor 0
           }
         }
       }
     });
+  }
+
+  private addDayData(filteredWeatherData: any[]) {
+    const container = document.querySelector("#prev-container");
+    container.innerHTML = "";
+    
+    filteredWeatherData.map((day, index) => {
+      if (index < 7) {
+        const pProb = document.createElement("p") as HTMLParagraphElement;
+        const pVol = document.createElement("p") as HTMLParagraphElement;
+        const bDay = document.createElement("b") as HTMLParagraphElement;
+        const divDay = document.createElement("div") as HTMLDivElement;
+
+        pProb.textContent = `Chuva: ${day.probability}%`;
+        pVol.textContent = `Vol.: ${day.volume} mm³`;
+        bDay.textContent = day.date;
+
+        pProb.style.cssText = "text-align: center";
+        pVol.style.cssText = "text-align: center";
+        bDay.style.cssText = "text-align: center";
+
+        divDay.style.cssText = "display: flex; flex-direction: column; justify-content:center; background-color: #d3d3d3; border-radius: 8px; margin: 5px; width: 115px";
+
+        divDay.appendChild(pProb);
+        divDay.appendChild(pVol);
+        divDay.appendChild(bDay);
+
+        container.appendChild(divDay);
+      }
+    })
   }
 }
 

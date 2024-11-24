@@ -51,9 +51,9 @@
   grid-template-areas:
     "endereco endereco endereco"
     "mapa mapa cultura"
-    "grafico uso tempo"
-    "grafico economia tempo";
-  grid-template-columns: 2fr 1fr 1fr;
+    "grafico economia tempo"
+    "grafico prev prev";
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: auto auto auto auto;
   gap: 20px;
   padding: 20px;
@@ -156,15 +156,19 @@
     }
   }
 
-  .uso-agua {
-    grid-area: uso;
-    background-color: #d3d3d3;
+  .previsao {
+    grid-area: prev;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    #prev-container {
+      display: flex;
+      flex-direction: row;
+    }
   }
 
   .economia-total {

@@ -23,22 +23,25 @@
       <canvas id="pieChart"></canvas>
     </div>
   </div>
+  <div class="economia-total">
+    <h2>Economia total</h2>
+    <h2>{{totalSavings}} m³</h2>
+  </div>
   <div class="condicoes-tempo">
     <h2>Condições atuais do tempo</h2>
     <ul>
       <li>Temperatura: {{weatherData.current?.temp}} °C</li>
-      <li>Humidade: {{weatherData.current?.humidity}}%</li>
+      <li>Umidade: {{weatherData.current?.humidity}}%</li>
       <li>Vento: {{weatherData.current?.wind_speed}} m/s</li>
     </ul>
     <h3>Alertas</h3>
-    <b>{{weatherData.alerts[0]?.description}}</b>
+    <b>{{weatherData.alerts[0]?.description.length>0 ? weatherData.alerts[0]?.description : 'Não há alertas na região'}}</b>
   </div>
   <div class="grafico-recursos">
     <canvas id="lineChart"></canvas>
   </div>
-  <div class="uso-agua">Uso de água/dia</div>
-  <div class="economia-total">
-    <h2>Economia total</h2>
-    <h2>{{totalSavings}} m³</h2>
+  <div class="previsao">
+    <h2>Previsão da semana</h2>
+    <div id="prev-container"></div>
   </div>
 </div>
