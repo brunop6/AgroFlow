@@ -1,0 +1,44 @@
+<div class="navbar">
+  <div class="navbar-logo">
+    <img src="assets/AgroFlow_logo_noBg.png" alt="Logo" class="logo">
+  </div>
+  <div class="navbar-buttons">
+    <button class="btn-profile">Perfil</button>
+    <button class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<div class="dashboard">
+  <div class="endereco-selecionado">
+    <b>{{ address }}</b>
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar endereço">
+      <button (click)="searchAddress()">Buscar</button>
+    </div>
+  </div>
+  <div id="map"></div>
+  <div class="recursos-cultura">
+    <b>Recursos Hídricos/Cultura</b>
+    <div style="width: 400px; height: 400px; margin: auto;">
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+  <div class="condicoes-tempo">
+    <h2>Condições atuais do tempo</h2>
+    <ul>
+      <li>Temperatura: {{weatherData.current?.temp}} °C</li>
+      <li>Humidade: {{weatherData.current?.humidity}}%</li>
+      <li>Vento: {{weatherData.current?.wind_speed}} m/s</li>
+    </ul>
+    <h3>Alertas</h3>
+    <b>{{weatherData.alerts[0]?.description}}</b>
+  </div>
+  <div class="grafico-recursos">
+    <canvas id="lineChart"></canvas>
+  </div>
+  <div class="uso-agua">Uso de água/dia</div>
+  <div class="economia-total">
+    <h2>Economia total</h2>
+    <h2>{{totalSavings}} m³</h2>
+  </div>
+</div>
