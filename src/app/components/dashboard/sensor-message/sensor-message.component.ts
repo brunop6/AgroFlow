@@ -1,0 +1,20 @@
+import { Component } from '@angular/core';
+import { SensorService } from 'src/app/shared/services/sensor.service';
+
+@Component({
+  selector: 'app-sensor-message',
+  templateUrl: './sensor-message.component.html',
+  styleUrls: ['./sensor-message.component.scss']
+})
+export class SensorMessageComponent {
+  culture: string = '';
+  humidity: number;
+
+  constructor(private sensorService: SensorService) {}
+
+  onSubmit(): void {
+    const timestamp = Date.now();
+    this.sensorService.publishMessage(this.culture, this.humidity, timestamp);
+    console.log('Mensagem enviada:', { culture: this.culture, humidity: this.humidity, timestamp });
+  }
+}

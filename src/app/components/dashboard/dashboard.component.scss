@@ -159,6 +159,22 @@
     }
   }
 
+  .sensor-data-chart{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 400px;
+    width: 100%;
+    canvas {
+      display: block;
+      margin: auto;
+      height: 100%;
+    }
+  }
   .previsao {
     flex: 1 1 100%;
     display: flex;

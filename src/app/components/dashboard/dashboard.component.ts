@@ -1,12 +1,19 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Chart } from 'chart.js/auto';
+import { Router } from '@angular/router';
+import { Chart, registerables } from 'chart.js/auto';
 import * as L from 'leaflet';
 import 'leaflet-draw';
 import { WeatherService } from 'src/app/shared/services/weather.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
 import { IrrigationService } from 'src/app/shared/services/irrigation.service';
+import { SensorService } from 'src/app/shared/services/sensor.service';
+import { SensorInterface } from 'src/app/shared/interfaces/sensor-interface';
+import 'chartjs-adapter-date-fns';
+
+Chart.register(...registerables);
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -17,17 +24,22 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private marker: L.Marker;
 
   private lineChart: Chart;
+  private sensorLineChart: Chart;
+  private cultureColors: { [culture: string]: { borderColor: string, backgroundColor: string } } = {}; // Armazena as cores das culturas
 
   protected searchQuery: string = '';
   protected filteredWeatherData: any = [];
   protected totalSavings: number = 0;
   protected irrigationResults: boolean = false;
 
+  protected sensorData: SensorInterface[] = [];
   constructor(
     protected weatherService: WeatherService,
     protected irrigationService: IrrigationService,
+    protected sensorService: SensorService,
     private cdr: ChangeDetectorRef,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private router: Router
   ) {
     // Busca localização na local storage
     const savedLocation = localStorage.getItem('location');
@@ -45,6 +57,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.sensorService.getHumidityData().subscribe((data) => {
+      this.sensorData.push(data);
+      console.log('Sensor data:', data);
+      this.updateSensorLineChart();
+    });
     //Busca os dados do clima na local storage
     const savedWeatherData = localStorage.getItem('weatherData');
     if (savedWeatherData) {
@@ -57,6 +74,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.initMap();
     this.createCharts();
+    this.initSensorLineChart();
+  }
+
+  publishSampleMessage(): void {
+    const culture = 'culture1';
+    const humidity = 45;
+    const timestamp = Date.now();
+
+    this.sensorService.publishMessage(culture, humidity, timestamp);
   }
 
   // Inicializa o mapa
@@ -373,6 +399,84 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       // Lógica adicional após o fechamento do diálogo, se necessário
     });
+  }
+
+  goToSensorMessage(): void {
+    this.router.navigate(['/sensor-message']);
+  }
+
+  private initSensorLineChart(): void {
+    const ctx = document.getElementById('sensorLineChart') as HTMLCanvasElement;
+    this.sensorLineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'time',
+            time: {
+              unit: 'minute'
+            },
+            title: {
+              display: true,
+              text: 'Tempo'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Umidade (%)'
+            },
+            min: 0,
+            max: 100
+          }
+        }
+      }
+    });
+  }
+
+  private updateSensorLineChart(): void {
+    if (this.sensorLineChart) {
+      const groupedData = this.groupSensorDataByCulture();
+      const datasets = Object.keys(groupedData).map(culture => {
+        if (!this.cultureColors[culture]) {
+          this.cultureColors[culture] = {
+            borderColor: this.getRandomColor(),
+            backgroundColor: this.getRandomColor(0.2)
+          };
+        }
+        return {
+          label: `Umidade do Sensor (${culture})`,
+          data: groupedData[culture].map(data => ({ x: new Date(data.timestamp).getTime(), y: data.humidity })),
+          borderColor: this.cultureColors[culture].borderColor,
+          backgroundColor: this.cultureColors[culture].backgroundColor,
+          fill: true,
+        };
+      });
+
+      this.sensorLineChart.data.datasets = datasets;
+      this.sensorLineChart.update();
+    }
+  }
+
+  private groupSensorDataByCulture(): { [culture: string]: SensorInterface[] } {
+    return this.sensorData.reduce((acc, data) => {
+      if (!acc[data.culture]) {
+        acc[data.culture] = [];
+      }
+      acc[data.culture].push(data);
+      return acc;
+    }, {});
+  }
+
+  private getRandomColor(alpha: number = 1): string {
+    const r = Math.floor(Math.random() * 255);
+    const g = Math.floor(Math.random() * 255);
+    const b = Math.floor(Math.random() * 255);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   protected calculateIrrigation(): void {

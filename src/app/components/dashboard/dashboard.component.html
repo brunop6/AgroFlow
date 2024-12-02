@@ -5,6 +5,7 @@
   <div class="navbar-buttons">
     <button class="btn-profile">Perfil</button>
     <button class="btn-logout">Logout</button>
+    <button class="btn-sensor-message" (click)="goToSensorMessage()">Sensor Message</button>
   </div>
 </div>
 
@@ -42,6 +43,11 @@
     <b>{{ (this.weatherService.weatherData && this.weatherService.weatherData.alerts) ? this.weatherService.weatherData.alerts[0].description : 'Não há alertas na região' }}</b>
   </div>
 
+  <div class="sensor-data-chart">
+    <h2>Sensores de umidade</h2>
+    <canvas id="sensorLineChart"></canvas>
+  </div>
+
   <div class="previsao">
     <h2>Previsão da semana</h2>
     <div id="prev-container"></div>
@@ -67,6 +73,7 @@
   </div>
 
   <button mat-raised-button color="primary" (click)="calculateIrrigation()">Calcular Irrigação</button>
+  <button (click)="publishSampleMessage()">Publicar Mensagem de Exemplo</button>
 </div>
 
 <button mat-fab class="config-button" (click)="openConfigDialog()">

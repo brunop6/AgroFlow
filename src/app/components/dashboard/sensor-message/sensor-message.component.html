@@ -1,0 +1,14 @@
+<div class="sensor-message-form">
+  <h2>Enviar Dados do Sensor</h2>
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="culture">Tipo de Cultura:</label>
+      <input type="text" id="culture" [(ngModel)]="culture" name="culture" required>
+    </div>
+    <div class="form-group">
+      <label for="humidity">Umidade (%):</label>
+      <input type="number" id="humidity" [(ngModel)]="humidity" name="humidity" required>
+    </div>
+    <button type="submit">Enviar</button>
+  </form>
+</div>

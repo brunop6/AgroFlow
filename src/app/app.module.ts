@@ -19,12 +19,14 @@ import { environment } from 'src/environments/environment';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ConfigDialogComponent } from './components/dashboard/config-dialog/config-dialog.component';
+import { SensorMessageComponent } from './components/dashboard/sensor-message/sensor-message.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
-    ConfigDialogComponent
+    ConfigDialogComponent,
+    SensorMessageComponent
   ],
   imports: [
     BrowserModule,

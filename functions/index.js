@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
+const { publishMessage } = require('./src/publishMessage');
 
 const app = express();
 app.use(cors({ origin: true }));
@@ -22,6 +23,18 @@ app.get('/getWeatherData', async (req, res) => {
   } catch (error) {
     res.status(500).send('Error fetching weather data');
   }
+});
+
+app.post('/publishMessage', (req, res) => {
+  const { culture, humidity, timestamp } = req.body;
+
+  if (!culture || !humidity || !timestamp) {
+    return res.status(400).send('Missing required fields: culture, humidity, timestamp');
+  }
+
+  publishMessage(culture, humidity, timestamp);
+
+  res.status(200).send('Mensagem publicada com sucesso');
 });
 
 exports.api = functions.https.onRequest(app);
