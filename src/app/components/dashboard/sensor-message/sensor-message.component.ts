@@ -15,6 +15,5 @@ export class SensorMessageComponent {
   onSubmit(): void {
     const timestamp = Date.now();
     this.sensorService.publishMessage(this.culture, this.humidity, timestamp);
-    console.log('Mensagem enviada:', { culture: this.culture, humidity: this.humidity, timestamp });
   }
 }

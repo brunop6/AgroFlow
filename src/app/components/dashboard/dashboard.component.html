@@ -2,6 +2,7 @@
   <div class="navbar-logo">
     <img src="assets/AgroFlow_logo_noBg.png" alt="Logo" class="logo">
   </div>
+
   <div class="navbar-buttons">
     <button class="btn-profile">Perfil</button>
     <button class="btn-logout">Logout</button>
@@ -12,6 +13,7 @@
 <div class="dashboard">
   <div class="endereco-selecionado">
     <b>{{ this.weatherService.location.address }}</b>
+
     <div class="search-bar">
       <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar endereço">
       <button (click)="searchAddress()">Buscar</button>
@@ -22,6 +24,7 @@
 
   <div class="recursos-cultura">
     <b>Recursos Hídricos/Cultura</b>
+    
     <div style="width: 400px; height: 400px; margin: auto;">
       <canvas id="pieChart"></canvas>
     </div>
@@ -73,7 +76,6 @@
   </div>
 
   <button mat-raised-button color="primary" (click)="calculateIrrigation()">Calcular Irrigação</button>
-  <button (click)="publishSampleMessage()">Publicar Mensagem de Exemplo</button>
 </div>
 
 <button mat-fab class="config-button" (click)="openConfigDialog()">

@@ -1,16 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { Chart, registerables } from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
+
 import * as L from 'leaflet';
 import 'leaflet-draw';
-import { WeatherService } from 'src/app/shared/services/weather.service';
+
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
+
+import { WeatherService } from 'src/app/shared/services/weather.service';
+
 import { IrrigationService } from 'src/app/shared/services/irrigation.service';
+
 import { SensorService } from 'src/app/shared/services/sensor.service';
 import { SensorInterface } from 'src/app/shared/interfaces/sensor-interface';
-import 'chartjs-adapter-date-fns';
 
 Chart.register(...registerables);
 
@@ -33,6 +39,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   protected irrigationResults: boolean = false;
 
   protected sensorData: SensorInterface[] = [];
+
   constructor(
     protected weatherService: WeatherService,
     protected irrigationService: IrrigationService,
@@ -57,11 +64,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Subscribe broker dos sensores
     this.sensorService.getHumidityData().subscribe((data) => {
       this.sensorData.push(data);
       console.log('Sensor data:', data);
       this.updateSensorLineChart();
     });
+
     //Busca os dados do clima na local storage
     const savedWeatherData = localStorage.getItem('weatherData');
     if (savedWeatherData) {
@@ -71,18 +80,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Inicializa o mapa e os gráficos após a view ser carregada
   ngAfterViewInit(): void {
     this.initMap();
     this.createCharts();
     this.initSensorLineChart();
-  }
-
-  publishSampleMessage(): void {
-    const culture = 'culture1';
-    const humidity = 45;
-    const timestamp = Date.now();
-
-    this.sensorService.publishMessage(culture, humidity, timestamp);
   }
 
   // Inicializa o mapa
@@ -120,8 +122,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }).catch((error) => {
         console.error("Erro ao acessar Nominatim:", error);
       });
-
-      // Salva a localização no local storage
     });
 
     // Adiciona a funcionalidade de desenho

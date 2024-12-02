@@ -21,7 +21,8 @@
     gap: 10px;
 
     .btn-profile,
-    .btn-logout {
+    .btn-logout,
+    .btn-sensor-message {
       background-color: #ffffff;
       color: #4CAF50;
       border: none;
@@ -32,12 +33,12 @@
     }
 
     .btn-profile:hover,
-    .btn-logout:hover {
+    .btn-logout:hover,
+    .btn-sensor-message:hover {
       background-color: #f1f1f1;
     }
   }
 }
-
 
 .dashboard {
   display: flex;
@@ -132,7 +133,6 @@
     }
   }
 
-
   .condicoes-tempo {
     flex: 1 1 25%;
     display: flex;
@@ -159,7 +159,7 @@
     }
   }
 
-  .sensor-data-chart{
+  .sensor-data-chart {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -169,12 +169,14 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     height: 400px;
     width: 100%;
+
     canvas {
       display: block;
       margin: auto;
       height: 100%;
     }
   }
+
   .previsao {
     flex: 1 1 100%;
     display: flex;
