@@ -1,4 +1,3 @@
-
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
@@ -20,13 +19,10 @@ $AgroFlow-warn: mat.define-palette(mat.$red-palette);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
-$AgroFlow-theme: mat.define-light-theme((
-  color: (
-    primary: $AgroFlow-primary,
-    accent: $AgroFlow-accent,
-    warn: $AgroFlow-warn,
-  )
-));
+$AgroFlow-theme: mat.define-light-theme((color: (primary: $AgroFlow-primary,
+        accent: $AgroFlow-accent,
+        warn: $AgroFlow-warn,
+      )));
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
@@ -35,12 +31,18 @@ $AgroFlow-theme: mat.define-light-theme((
 
 /* You can add global styles to this file, and also import other style files */
 
-html, body { 
-  height: 100%; 
+*,
+*:after,
+*:before {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
 }
-body { 
+
+body {
+  font-size: 100%;
+  list-style-type: none;
   font-family: Arial, sans-serif;
   background-color: #f8f8f8;
 }

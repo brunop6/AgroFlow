@@ -4,45 +4,67 @@ import { Chart } from 'chart.js/auto';
 import * as L from 'leaflet';
 import 'leaflet-draw';
 import { WeatherService } from 'src/app/shared/services/weather.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
+import { IrrigationService } from 'src/app/shared/services/irrigation.service';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
-  private lat: number = -22.412833;
-  private lon: number = -45.449754;
   private map: L.Map;
   private marker: L.Marker;
 
-  protected address: string;
+  private lineChart: Chart;
+
   protected searchQuery: string = '';
-  protected weatherData: any = {
-    alerts: [{
-      description: '',
-    }],
-    current: {}
-  };
   protected filteredWeatherData: any = [];
   protected totalSavings: number = 0;
+  protected irrigationResults: boolean = false;
 
-  constructor(private weatherService: WeatherService, private cdr: ChangeDetectorRef) { }
+  constructor(
+    protected weatherService: WeatherService,
+    protected irrigationService: IrrigationService,
+    private cdr: ChangeDetectorRef,
+    public dialog: MatDialog
+  ) {
+    // Busca localização na local storage
+    const savedLocation = localStorage.getItem('location');
 
-  async ngOnInit(): Promise<void> {
-    this.initMap();
+    if (savedLocation) {
+      this.weatherService.location = JSON.parse(savedLocation);
+    } else {
+      // Localização padrão
+      this.weatherService.location = {
+        lat: -22.412833,
+        lon: -45.449754,
+        address: 'Universidade Federal de Itajubá, 1301, Avenida BPS, Nossa Senhora da Agonia, Itajubá, Região Geográfica Imediata de Itajubá, Região Geográfica Intermediária de Pouso Alegre, Minas Gerais, Região Sudeste, 37500-224, Brasil'
+      }
+    }
+  }
+
+  ngOnInit(): void {
+    //Busca os dados do clima na local storage
+    const savedWeatherData = localStorage.getItem('weatherData');
+    if (savedWeatherData) {
+      this.weatherService.weatherData = JSON.parse(savedWeatherData);
+      this.filteredWeatherData = this.weatherService.extractRainData(this.weatherService.weatherData.daily);
+      this.addDayData(this.filteredWeatherData);
+    }
   }
 
   ngAfterViewInit(): void {
+    this.initMap();
     this.createCharts();
   }
 
+  // Inicializa o mapa
   private initMap(): void {
-    //Configuração do mapa
-    this.map = L.map('map').setView([this.lat, this.lon], 13);
+    this.map = L.map('map').setView([this.weatherService.location.lat, this.weatherService.location.lon], 15);
 
-    reverseGeocode(this.lat, this.lon).then((data) => {
-      this.address = data;
+    reverseGeocode(this.weatherService.location.lat, this.weatherService.location.lon).then((data) => {
+      this.weatherService.location.address = data;
     }).catch((error) => {
       console.error("Erro ao acessar Nominatim:", error);
     });
@@ -51,7 +73,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.map);
 
-    this.marker = L.marker([-22.412833, -45.449754], { draggable: true }).addTo(this.map);
+    this.marker = L.marker([this.weatherService.location.lat, this.weatherService.location.lon], { draggable: true }).addTo(this.map);
 
     // Adiciona um evento de clique no mapa
     this.map.on("click", (e) => {
@@ -59,17 +81,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.marker.setLatLng([lat, lng]); // Move o marcador para o local clicado
 
       // Atualiza as variáveis de latitude e longitude
-      this.lat = lat;
-      this.lon = lng;
+      this.weatherService.location.lat = lat;
+      this.weatherService.location.lon = lng;
 
       reverseGeocode(lat, lng).then((data) => {
-        this.address = data;
+        this.weatherService.location.address = data;
 
         // Chama a função para obter os dados do clima
         this.getWeatherData(lat, lng);
+
+        localStorage.setItem('location', JSON.stringify(this.weatherService.location));
       }).catch((error) => {
         console.error("Erro ao acessar Nominatim:", error);
       });
+
+      // Salva a localização no local storage
     });
 
     // Adiciona a funcionalidade de desenho
@@ -129,16 +155,27 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Função para obter os dados do clima
+  /**
+   * Função para obter os dados do clima
+   * @param lat 
+   * @param lon 
+   */
   async getWeatherData(lat: number, lon: number): Promise<void> {
     this.weatherService.getWeatherData(lat, lon).subscribe(
       data => {
         console.log('Weather data:', data);
-        this.weatherData = data;
+        this.weatherService.weatherData = data;
+
+        // Calcula a radiação extraterrestre (Ra) em MJ/m²/dia
+        data.daily.map((day, index) => {
+          const timestamp = day.dt * 1000;
+          data.daily[index].Ra = this.weatherService.calculateRa(lat, timestamp);
+        })
 
         this.filteredWeatherData = this.weatherService.extractRainData(data.daily);
-        console.log(this.filteredWeatherData)
         this.addDayData(this.filteredWeatherData);
+
+        localStorage.setItem('weatherData', JSON.stringify(this.weatherService.weatherData));
       },
       (error: HttpErrorResponse) => {
         console.error('Error fetching weather data:', error);
@@ -170,18 +207,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.map.setView([lat, lon], 13);
       this.marker.setLatLng([lat, lon]);
 
-      this.lat = lat;
-      this.lon = lon;
-      this.address = result.display_name;
+      this.weatherService.location.lat = lat;
+      this.weatherService.location.lon = lon;
+      this.weatherService.location.address = result.display_name
 
       // Chama a função para obter os dados do clima
       this.getWeatherData(lat, lon);
+
+      localStorage.setItem('location', JSON.stringify(this.weatherService.location));
     } else {
       console.error("Endereço não encontrado");
     }
   }
 
-  createCharts() {
+  private createCharts(): void {
     // Gráfico de recursos/cultura
     new Chart("pieChart", {
       type: 'pie', // Tipo do gráfico
@@ -208,33 +247,37 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
 
     //Gráfico de recursos/dia
-    // Simulação de dados: consumo diário de recursos hídricos (em m³) para os últimos 30 dias
-    const consumptionData = Array.from({ length: 30 }, () => Math.floor(Math.random() * 80) + 40); //Valores entre 40 e 120 m³
-    // Simulação de dados: consumo estimado de recursos hídricos (em m³) para os últimos 30 dias
-    const estimatedConsumptionData = Array.from({ length: 30 }, () => Math.floor(Math.random() * 100) + 50); //Valores entre 50 e 150 m³
-    const days = Array.from({ length: 30 }, (_, i) => `Dia ${i + 1}`); // Rótulos dos dias (ex.: Dia 1, Dia 2...)
+    const estimatedConsumptionData = [];
+    const consumptionData = [];
+    const effectiveRain = [];
+    const days = this.filteredWeatherData.map(day => day.date);
 
-    // Calcula a economia total
-    this.totalSavings = consumptionData.reduce((acc, curr, index) => acc + (curr - estimatedConsumptionData[index]), 0);
-    this.cdr.detectChanges();
-    new Chart("lineChart", {
+    this.lineChart = new Chart("lineChart", {
       type: 'line',
       data: {
         labels: days, // Rótulos do eixo X (dias)
         datasets: [
           {
-            label: 'Consumo Diário (m³)',
+            label: 'Consumo Diário (mm)',
             data: consumptionData, // Dados do eixo Y (consumo)
-            borderColor: '#36A2EB', // Cor da linha
-            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Área preenchida abaixo da linha
+            borderColor: '#008000', // Cor da linha
+            backgroundColor: 'rgba(0, 128, 0, 0.2)', // Área preenchida abaixo da linha
             borderWidth: 2, // Largura da linha
             tension: 0.4 // Curvatura da linha
           },
           {
-            label: 'Consumo Estimado (m³)',
+            label: 'Consumo Estimado (mm)',
             data: estimatedConsumptionData, // Dados do eixo Y (consumo estimado)
             borderColor: '#FF6384', // Cor da linha
             backgroundColor: 'rgba(255, 99, 132, 0.2)', // Área preenchida abaixo da linha
+            borderWidth: 2, // Largura da linha
+            tension: 0.4 // Curvatura da linha
+          },
+          {
+            label: 'Volume chuva (mm)',
+            data: effectiveRain, // Dados do eixo Y (chuva eficaz)
+            borderColor: '#36A2EB', // Cor da linha
+            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Área preenchida abaixo da linha
             borderWidth: 2, // Largura da linha
             tension: 0.4 // Curvatura da linha
           }
@@ -262,7 +305,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           y: {
             title: {
               display: true,
-              text: 'Consumo (m³)',
+              text: 'Volume água (mm)',
               font: { size: 14 }
             },
           }
@@ -271,34 +314,127 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private addDayData(filteredWeatherData: any[]) {
+  /**
+   * Função para adicionar os dados de chuva no container
+   * @param filteredWeatherData 
+   */
+  private addDayData(filteredWeatherData: any[]): void {
     const container = document.querySelector("#prev-container");
     container.innerHTML = "";
-    
+
     filteredWeatherData.map((day, index) => {
-      if (index < 7) {
+      if (index < 8) {
         const pProb = document.createElement("p") as HTMLParagraphElement;
         const pVol = document.createElement("p") as HTMLParagraphElement;
         const bDay = document.createElement("b") as HTMLParagraphElement;
+        const pRa = document.createElement("p") as HTMLParagraphElement;
+        const pHumidity = document.createElement("p") as HTMLParagraphElement;
+        const pTemp = document.createElement("p") as HTMLParagraphElement;
         const divDay = document.createElement("div") as HTMLDivElement;
 
+        pRa.textContent = `Ra: ${day.Ra} MJ/m²/dia`;
+        pHumidity.textContent = `Umidade: ${day.humidity}%`;
+        pTemp.textContent = `Temp.: ${day.temp}°C`;
         pProb.textContent = `Chuva: ${day.probability}%`;
         pVol.textContent = `Vol.: ${day.volume} mm³`;
         bDay.textContent = day.date;
 
-        pProb.style.cssText = "text-align: center";
-        pVol.style.cssText = "text-align: center";
-        bDay.style.cssText = "text-align: center";
+        pRa.style.cssText = "text-align: left; margin: 5px 0";
+        pHumidity.style.cssText = "text-align: left; margin: 5px 0";
+        pTemp.style.cssText = "text-align: left; margin: 5px 0";
+        pProb.style.cssText = "text-align: left; margin: 5px 0";
+        pVol.style.cssText = "text-align: left; margin: 5px 0";
+        bDay.style.cssText = "text-align: left; margin: 5px 0";
 
-        divDay.style.cssText = "display: flex; flex-direction: column; justify-content:center; background-color: #d3d3d3; border-radius: 8px; margin: 5px; width: 115px";
+        divDay.style.cssText = "background-color: #fff;padding: 20px;border-radius: 8px;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);width: 250px;display: flex;flex-direction: column;justify-items: center;align-items: left; gap: 10px;";
 
+        divDay.appendChild(bDay);
+        divDay.appendChild(pTemp);
         divDay.appendChild(pProb);
         divDay.appendChild(pVol);
-        divDay.appendChild(bDay);
+        divDay.appendChild(pHumidity);
+        divDay.appendChild(pRa);
 
         container.appendChild(divDay);
       }
     })
+  }
+
+  protected openConfigDialog(): void {
+    if (!this.weatherService.weatherData) {
+      alert('Por favor, selecione uma localização no mapa antes de configurar o sistema de irrigação.');
+      return;
+    }
+    const dialogRef = this.dialog.open(ConfigDialogComponent, {
+      width: '700px',
+      data: this.irrigationService.irrigationData.config
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Lógica adicional após o fechamento do diálogo, se necessário
+    });
+  }
+
+  protected calculateIrrigation(): void {
+    if (this.irrigationService.irrigationData.status === 'empty') {
+      this.irrigationResults = false;
+      alert('Por favor, configure o sistema de irrigação antes de calcular a irrigação.');
+      return;
+    }
+
+    this.irrigationService.irrigationData.data = [];
+
+    this.weatherService.weatherData.daily.forEach((day, index) => {
+      const adjustedKc = this.irrigationService.calculateAdjustedKc(
+        this.irrigationService.irrigationData.config.Kc,
+        day.wind_speed,
+        day.humidity,
+        this.irrigationService.irrigationData.config.maxHeight
+      );
+
+      const ETo = this.irrigationService.calculateETo(
+        day.temp.max,
+        day.temp.min,
+        day.temp.day,
+        day.Ra
+      );
+
+      const totalIrrigation = this.irrigationService.calculateIrrigationRequirement(
+        ETo,
+        adjustedKc,
+        this.irrigationService.irrigationData.config.Ef
+      );
+
+      const effectiveRain = this.irrigationService.calculateEffectiveRain(
+        (day.rain || 0),
+        this.irrigationService.irrigationData.config.Ef
+      );
+
+      const finalIrrigation = (totalIrrigation - effectiveRain) < 0 ? 0 : totalIrrigation - effectiveRain;
+
+      this.irrigationService.irrigationData.data.push({
+        adjustedKc: Number(adjustedKc.toFixed(2)),
+        ETo: Number(ETo.toFixed(2)),
+        effectiveRain: Number(effectiveRain.toFixed(2)),
+        finalIrrigation: Number(finalIrrigation.toFixed(2)),
+        totalIrrigation: Number(totalIrrigation.toFixed(2))
+      });
+    });
+
+    this.irrigationResults = true;
+
+    if (this.lineChart) {
+      this.lineChart.data.datasets[0].data = this.irrigationService.irrigationData.data.map(day => day.finalIrrigation);
+      this.lineChart.data.datasets[1].data = this.irrigationService.irrigationData.data.map(day => day.totalIrrigation);
+      this.lineChart.data.datasets[2].data = this.irrigationService.irrigationData.data.map(day => day.effectiveRain);
+      this.lineChart.update();
+    }
+
+    this.totalSavings = this.irrigationService.irrigationData.data.reduce((acc, day) => acc + (day.totalIrrigation - day.finalIrrigation), 0);
+    this.cdr.detectChanges();
+
+    console.log('Configuração:', this.irrigationService.irrigationData.config);
+    console.log('Irrigação calculada:', this.irrigationService.irrigationData.data);
   }
 }
 

@@ -10,38 +10,65 @@
 
 <div class="dashboard">
   <div class="endereco-selecionado">
-    <b>{{ address }}</b>
+    <b>{{ this.weatherService.location.address }}</b>
     <div class="search-bar">
       <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar endereço">
       <button (click)="searchAddress()">Buscar</button>
     </div>
   </div>
+
   <div id="map"></div>
+
   <div class="recursos-cultura">
     <b>Recursos Hídricos/Cultura</b>
     <div style="width: 400px; height: 400px; margin: auto;">
       <canvas id="pieChart"></canvas>
     </div>
   </div>
-  <div class="economia-total">
-    <h2>Economia total</h2>
-    <h2>{{totalSavings}} m³</h2>
+
+  <div class="grafico-recursos">
+    <canvas id="lineChart"></canvas>
+    <b>Economia total: {{totalSavings.toFixed(2)}} mm</b>
   </div>
+
   <div class="condicoes-tempo">
     <h2>Condições atuais do tempo</h2>
     <ul>
-      <li>Temperatura: {{weatherData.current?.temp}} °C</li>
-      <li>Umidade: {{weatherData.current?.humidity}}%</li>
-      <li>Vento: {{weatherData.current?.wind_speed}} m/s</li>
+      <li>Temperatura: {{ this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].temp.day : ''}} °C</li>
+      <li>Umidade: {{this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].humidity : ''}}%</li>
+      <li>Vento: {{this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].wind_speed : ''}} m/s</li>
     </ul>
     <h3>Alertas</h3>
-    <b>{{weatherData.alerts[0]?.description.length>0 ? weatherData.alerts[0]?.description : 'Não há alertas na região'}}</b>
+    <b>{{ (this.weatherService.weatherData && this.weatherService.weatherData.alerts) ? this.weatherService.weatherData.alerts[0].description : 'Não há alertas na região' }}</b>
   </div>
-  <div class="grafico-recursos">
-    <canvas id="lineChart"></canvas>
-  </div>
+
   <div class="previsao">
     <h2>Previsão da semana</h2>
     <div id="prev-container"></div>
   </div>
 </div>
+
+<!-- Seção Irrigação -->
+<div class="irrigation">
+  <h2>Irrigação</h2>
+
+  <div *ngIf="irrigationResults" class="cards-container">
+    <div class="irrigation-cards">
+      <div class="card" *ngFor="let result of irrigationService.irrigationData.data; let i = index">
+        <div class="card-content">
+          <h3>{{ filteredWeatherData[i].date }}</h3>
+          <p><b>Kc Ajustado:</b> {{ result.adjustedKc }}</p>
+          <p><b>Irrigação total:</b> {{ result.totalIrrigation }} mm</p>
+          <p><b>Chuva Eficaz:</b> {{ result.effectiveRain }} mm</p>
+          <p><b>Irrigação final:</b> {{ result.finalIrrigation }} mm</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button mat-raised-button color="primary" (click)="calculateIrrigation()">Calcular Irrigação</button>
+</div>
+
+<button mat-fab class="config-button" (click)="openConfigDialog()">
+  <mat-icon>settings</mat-icon>
+</button>

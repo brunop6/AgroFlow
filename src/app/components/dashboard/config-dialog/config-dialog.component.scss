@@ -1,0 +1,25 @@
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.moisture-range {
+  display: flex;
+  justify-content: space-between;
+  gap: 4%;
+}
+
+.irrigation-type-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .efficiency-display {
+    margin: -20px 0 0 20px;
+    font-size: 14px;
+    color: #0000ae;
+  }
+}

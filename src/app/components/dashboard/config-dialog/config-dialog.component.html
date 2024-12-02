@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Configuração de Parâmetros de Irrigação</h2>
+<mat-dialog-content>
+  <form [formGroup]="configForm">
+    <!-- Tipo de Irrigação -->
+    <div class="irrigation-type-container">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Tipo de Irrigação</mat-label>
+        <mat-select formControlName="irrigationType">
+          <mat-option *ngFor="let type of irrigationTypes" [value]="type">{{ type }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="efficiency-display">
+        <p>Eficiência: {{ config.Ef }}%</p>
+      </div>
+    </div>
+
+    <!-- Coeficiente de Cultura -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Coeficiente de Cultura (Kc)</mat-label>
+      <input matInput type="number" formControlName="Kc" [value]="config?.Kc" placeholder="Ex.: 0.8" />
+    </mat-form-field>
+
+    <!-- Faixa de Umidade -->
+    <div class="moisture-range">
+      <mat-form-field appearance="fill" class="half-width">
+      <mat-label>Umidade Mínima (%)</mat-label>
+      <input matInput type="number" formControlName="minMoisture" [value]="config?.minMoisture" placeholder="Ex.: 30" />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="half-width">
+      <mat-label>Umidade Máxima (%)</mat-label>
+      <input matInput type="number" formControlName="maxMoisture" [value]="config?.maxMoisture" placeholder="Ex.: 70" />
+      </mat-form-field>
+    </div>
+
+     <!-- Altura Máxima da Cultura -->
+     <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Altura Máxima da Cultura (m)</mat-label>
+      <input matInput type="number" formControlName="maxHeight" [value]="config?.maxHeight" placeholder="Ex.: 1.5" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-button color="primary" (click)="onSave()">Salvar</button>
+</mat-dialog-actions>
