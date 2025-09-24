@@ -14,6 +14,5 @@ export class SensorMessageComponent {
 
   onSubmit(): void {
     const timestamp = Date.now();
-    this.sensorService.publishMessage(this.culture, this.humidity, timestamp);
   }
 }

@@ -1,0 +1,51 @@
+<aside class="sidebar">
+    <div class="sidebar-header" (click)="toggleSidebar()">
+        <img src="assets/AgroFlow_logo_noBg.png" alt="Logo AgroFlow" class="logo">
+        <h1 class="site-title">Agro<span class="logo-flow">Flow</span></h1>
+
+        <button class="toggle-btn">
+            <mat-icon>{{ isCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a routerLink="/dashboard" routerLinkActive="active-link">
+            <mat-icon matTooltip="Dashboard" [matTooltipDisabled]="!isCollapsed">home</mat-icon>
+            <span>Dashboard</span>
+        </a>
+        <a>
+            <mat-icon matTooltip="Mapa" [matTooltipDisabled]="!isCollapsed">map</mat-icon>
+            <span>Mapa</span>
+        </a>
+        <a routerLink="/sensores" routerLinkActive="active-link">
+            <mat-icon matTooltip="Sensores" [matTooltipDisabled]="!isCollapsed">sensors</mat-icon>
+            <span>Sensores</span>
+        </a>
+        <a>
+            <mat-icon matTooltip="Planejamento" [matTooltipDisabled]="!isCollapsed">event</mat-icon>
+            <span>Planejamento</span>
+        </a>
+        <a>
+            <mat-icon matTooltip="Alertas" [matTooltipDisabled]="!isCollapsed">warning</mat-icon>
+            <span>Alertas</span>
+        </a>
+        <a>
+            <mat-icon matTooltip="Relatórios" [matTooltipDisabled]="!isCollapsed">bar_chart</mat-icon>
+            <span>Relatórios</span>
+        </a>
+        <a (click)="triggerOpenConfigDialog()">
+            <mat-icon matTooltip="Configurações" [matTooltipDisabled]="!isCollapsed">settings</mat-icon>
+            <span>Configurações</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-avatar">
+            <mat-icon>person</mat-icon>
+        </div>
+        <div class="user-info">
+            <p>Usuário Agricultor</p>
+            <small>admin@agroflow.com</small>
+        </div>
+    </div>
+</aside>

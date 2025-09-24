@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>Configurar Sensor (ID: {{ data.sensor.id }})</h2>
+<mat-dialog-content>
+  <p>Defina um nome, cultura e a localização para este sensor.</p>
+  <form [formGroup]="editForm">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Nome do Sensor</mat-label>
+      <input matInput formControlName="name" placeholder="Ex: Sensor do Talhão Norte">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Cultura Associada</mat-label>
+      <input matInput formControlName="culture" placeholder="Ex: Milho Safrinha 2025">
+    </mat-form-field>
+
+    <div class="location-section">
+      <div class="location-fields">
+        <mat-form-field appearance="fill" class="location-field">
+          <mat-label>Latitude</mat-label>
+          <input matInput formControlName="lat" type="number" readonly>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="location-field">
+          <mat-label>Longitude</mat-label>
+          <input matInput formControlName="lon" type="number" readonly>
+        </mat-form-field>
+      </div>
+      <button mat-stroked-button color="primary" (click)="getCurrentLocation()">
+        <mat-icon>my_location</mat-icon>
+        Obter Localização Atual
+      </button>
+      <small *ngIf="locationError" class="location-error">{{ locationError }}</small>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="editForm.invalid">Salvar</button>
+</mat-dialog-actions>

@@ -1,5 +1,8 @@
 export interface SensorInterface {
-  culture: string;
+  id: string;
+  name?: string;
+  culture?: string;
+  isAssociated: boolean;
   humidity: number;
   timestamp: number;
 }

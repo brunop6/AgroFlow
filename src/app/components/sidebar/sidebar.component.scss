@@ -1,0 +1,197 @@
+$sidebar-width-expanded: 260px;
+$sidebar-width-collapsed: 80px;
+$animation-speed: 0.3s;
+
+:host {
+    width: $sidebar-width-expanded;
+    transition: width $animation-speed ease-in-out;
+    flex-shrink: 0;
+}
+
+.sidebar {
+    width: 100%;
+    height: 100vh;
+    background-color: #2e7d32;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+// --- CABEÇALHO ---
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    gap: 12px;
+    border-bottom: 1px solid #256828;
+    flex-shrink: 0;
+    transition: all $animation-speed ease-in-out;
+
+    position: relative;
+
+    .logo {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        box-sizing: border-box;
+        border: 2px solid transparent;
+        padding: 0;
+        transition:
+            border $animation-speed ease-in-out,
+            padding $animation-speed ease-in-out;
+    }
+
+    .site-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0;
+        white-space: nowrap;
+
+        .logo-flow {
+            color: #043f06;
+        }
+    }
+
+    .toggle-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 50%;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all $animation-speed ease-in-out;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    }
+}
+
+// --- NAVEGAÇÃO ---
+.sidebar-nav {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+    overflow-y: auto;
+
+    a {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0.75rem;
+        border-radius: 8px;
+        color: #e8f5e9;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+        white-space: nowrap;
+
+        span {
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        &:hover,
+        &.active-link {
+            background-color: #388e3c;
+            color: white;
+        }
+    }
+}
+
+// --- RODAPÉ (PERFIL) ---
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem;
+    border-top: 1px solid #256828;
+    flex-shrink: 0;
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #388e3c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .user-info {
+        white-space: nowrap;
+        transition: opacity 0.2s ease-in-out;
+
+        p {
+            font-weight: 500;
+            margin: 0;
+        }
+
+        small {
+            font-size: 0.75rem;
+            color: #c8e6c9;
+        }
+    }
+}
+
+
+// --- ESTADOS QUANDO A SIDEBAR ESTÁ COLAPSADA ---
+:host.collapsed {
+    width: $sidebar-width-collapsed;
+
+    .sidebar-header {
+        justify-content: center;
+        cursor: pointer;
+
+        &:hover .toggle-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+    }
+
+    .site-title {
+        display: none;
+    }
+
+    .toggle-btn {
+        position: absolute;
+        z-index: 10;
+    }
+
+    .logo {
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        padding: 2px;
+    }
+
+    .sidebar-nav {
+        padding: 1rem 0.5rem;
+
+        a {
+            justify-content: center;
+            padding: 0.75rem 0;
+            gap: 0;
+
+            span {
+                opacity: 0;
+                width: 0;
+                overflow: hidden;
+            }
+        }
+    }
+
+    .sidebar-footer {
+        justify-content: center;
+
+        .user-info {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+    }
+}

@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Simular Dados de Sensor</h2>
+<mat-dialog-content>
+  <p>Envie um dado de umidade para um sensor novo ou existente para fins de teste.</p>
+  <form [formGroup]="simulateForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <mat-label>ID do Sensor (ou Cultura)</mat-label>
+      <input matInput formControlName="id" placeholder="Ex: Milho-Lote03">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <mat-label>Umidade (%)</mat-label>
+      <input matInput type="number" formControlName="humidity" placeholder="Ex: 55">
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="simulateForm.invalid">Enviar</button>
+</mat-dialog-actions>

@@ -1,1 +1,32 @@
-<router-outlet></router-outlet>
+<div class="main-container">
+  <div class="main-container">
+    <app-sidebar (openConfigDialogEvent)="openConfigDialog()"></app-sidebar>
+
+    <div class="content">
+      <header class="top-header">
+      </header>
+      <main class="main-content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+
+  <div class="content">
+    <header class="top-header">
+      <h2>Dashboard</h2>
+      <div class="header-actions">
+        <div class="notification-icon">
+          <mat-icon>notifications</mat-icon>
+          <span class="notification-badge"></span>
+        </div>
+        <div class="user-icon">
+          <mat-icon>person</mat-icon>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,83 +1,97 @@
-<div class="navbar">
-  <div class="navbar-logo">
-    <img src="assets/AgroFlow_logo_noBg.png" alt="Logo" class="logo">
-  </div>
-
-  <div class="navbar-buttons">
-    <button class="btn-profile">Perfil</button>
-    <button class="btn-logout">Logout</button>
-    <button class="btn-sensor-message" (click)="goToSensorMessage()">Sensor Message</button>
-  </div>
-</div>
-
-<div class="dashboard">
-  <div class="endereco-selecionado">
-    <b>{{ this.weatherService.location.address }}</b>
-
-    <div class="search-bar">
-      <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar endereço">
-      <button (click)="searchAddress()">Buscar</button>
+<div class="dashboard-container">
+  <div class="stats-grid">
+    <div class="card">
+      <div class="card-content">
+        <div>
+          <p>Temperatura</p>
+          <h3>{{ this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].temp.day : '--' }} °C</h3>
+          <small>Umidade: {{ this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].humidity : '--'
+            }}%</small>
+        </div>
+        <div class="icon-wrapper bg-yellow">
+          <mat-icon>thermostat</mat-icon>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <div id="map"></div>
-
-  <div class="recursos-cultura">
-    <b>Recursos Hídricos/Cultura</b>
-    
-    <div style="width: 400px; height: 400px; margin: auto;">
-      <canvas id="pieChart"></canvas>
+    <div class="card">
+      <div class="card-content">
+        <div>
+          <p>Consumo de Água</p>
+          <h3>{{ totalSavings.toFixed(2) }} L</h3>
+          <small class="text-green">economia total</small>
+        </div>
+        <div class="icon-wrapper bg-blue">
+          <mat-icon>water_drop</mat-icon>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <div class="grafico-recursos">
-    <canvas id="lineChart"></canvas>
-    <b>Economia total: {{totalSavings.toFixed(2)}} mm</b>
-  </div>
-
-  <div class="condicoes-tempo">
-    <h2>Condições atuais do tempo</h2>
-    <ul>
-      <li>Temperatura: {{ this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].temp.day : ''}} °C</li>
-      <li>Umidade: {{this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].humidity : ''}}%</li>
-      <li>Vento: {{this.weatherService.weatherData ? this.weatherService.weatherData.daily[0].wind_speed : ''}} m/s</li>
-    </ul>
-    <h3>Alertas</h3>
-    <b>{{ (this.weatherService.weatherData && this.weatherService.weatherData.alerts) ? this.weatherService.weatherData.alerts[0].description : 'Não há alertas na região' }}</b>
-  </div>
-
-  <div class="sensor-data-chart">
-    <h2>Sensores de umidade</h2>
-    <canvas id="sensorLineChart"></canvas>
-  </div>
-
-  <div class="previsao">
-    <h2>Previsão da semana</h2>
-    <div id="prev-container"></div>
-  </div>
-</div>
-
-<!-- Seção Irrigação -->
-<div class="irrigation">
-  <h2>Irrigação</h2>
-
-  <div *ngIf="irrigationResults" class="cards-container">
-    <div class="irrigation-cards">
-      <div class="card" *ngFor="let result of irrigationService.irrigationData.data; let i = index">
-        <div class="card-content">
-          <h3>{{ filteredWeatherData[i].date }}</h3>
-          <p><b>Kc Ajustado:</b> {{ result.adjustedKc }}</p>
-          <p><b>Irrigação total:</b> {{ result.totalIrrigation }} mm</p>
-          <p><b>Chuva Eficaz:</b> {{ result.effectiveRain }} mm</p>
-          <p><b>Irrigação final:</b> {{ result.finalIrrigation }} mm</p>
+    <div class="card">
+      <div class="card-content">
+        <div>
+          <p>Sensores Ativos</p>
+          <h3>{{ sensorData.length }}</h3>
+          <small class="text-green">operando</small>
+        </div>
+        <div class="icon-wrapper bg-purple">
+          <mat-icon>wifi</mat-icon>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-content">
+        <div>
+          <p>Alertas</p>
+          <h3>{{ (this.weatherService.weatherData?.alerts) ? '1' : '0' }}</h3>
+          <small>{{ (this.weatherService.weatherData?.alerts) ? weatherService.weatherData.alerts[0].event : 'Nenhum
+            alerta' }}</small>
+        </div>
+        <div class="icon-wrapper bg-red">
+          <mat-icon>warning</mat-icon>
         </div>
       </div>
     </div>
   </div>
 
-  <button mat-raised-button color="primary" (click)="calculateIrrigation()">Calcular Irrigação</button>
-</div>
+  <div class="data-grid">
+    <div class="card data-card span-col-2">
+      <h3>Monitoramento de Umidade dos Sensores</h3>
+      <div class="chart-container">
+        <canvas id="sensorLineChart"></canvas>
+      </div>
+    </div>
 
-<button mat-fab class="config-button" (click)="openConfigDialog()">
-  <mat-icon>settings</mat-icon>
-</button>
+    <div class="card data-card">
+      <h3>Previsão da Semana</h3>
+      <div id="prev-container" class="forecast-container"></div>
+    </div>
+  </div>
+
+  <div class="control-grid">
+    <div class="card data-card">
+      <h3>Mapa e Localização</h3>
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar endereço...">
+        <button (click)="searchAddress()">Buscar</button>
+      </div>
+      <div id="map"></div>
+      <b>{{ this.weatherService.location.address }}</b>
+    </div>
+
+    <div class="card data-card">
+      <h3>Controle de Irrigação</h3>
+      <p>Resultados do cálculo de irrigação para os próximos dias.</p>
+      <div *ngIf="irrigationResults" class="irrigation-cards-container">
+        <div class="irrigation-card" *ngFor="let result of irrigationService.irrigationData.data; let i = index">
+          <div class="card-content">
+            <h4>{{ filteredWeatherData[i].date }}</h4>
+            <p><b>Irrigação Final:</b> {{ result.finalIrrigation }} mm</p>
+            <p><small>Chuva Eficaz: {{ result.effectiveRain }} mm</small></p>
+          </div>
+        </div>
+      </div>
+      <button class="calculate-btn" mat-raised-button color="primary" (click)="calculateIrrigation()">
+        Calcular Irrigação
+      </button>
+    </div>
+  </div>
+</div>

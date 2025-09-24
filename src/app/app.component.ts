@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { WeatherService } from './shared/services/weather.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfigDialogComponent } from './components/dashboard/config-dialog/config-dialog.component';
+import { WeatherService } from './shared/services/weather.service';
+import { IrrigationService } from './shared/services/irrigation.service';
 
 @Component({
   selector: 'app-root',
@@ -11,5 +13,27 @@ import { Router } from '@angular/router';
 export class AppComponent {
   title = 'AgroFlow';
 
-  constructor(private router: Router) { }
+  // Adicionamos os serviços necessários ao construtor do AppComponent
+  constructor(
+    private router: Router,
+    public dialog: MatDialog,
+    protected weatherService: WeatherService,
+    protected irrigationService: IrrigationService
+  ) { }
+
+  // Movemos a função para cá
+  openConfigDialog(): void {
+    if (!this.weatherService.weatherData) {
+      alert('Por favor, selecione uma localização no mapa antes de configurar o sistema de irrigação.');
+      return;
+    }
+    const dialogRef = this.dialog.open(ConfigDialogComponent, {
+      width: '700px',
+      data: this.irrigationService.irrigationData.config
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Lógica adicional após o fechamento do diálogo, se necessário
+    });
+  }
 }
