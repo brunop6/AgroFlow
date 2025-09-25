@@ -30,7 +30,12 @@
         <div>
           <p>Sensores Ativos</p>
           <h3>{{ sensorData.length }}</h3>
-          <small class="text-green">operando</small>
+
+          <small *ngIf="drawnArea" class="text-green">
+            {{ sensorsInAreaCount }} na área selecionada
+          </small>
+
+          <small *ngIf="!drawnArea" class="text-green">operando</small>
         </div>
         <div class="icon-wrapper bg-purple">
           <mat-icon>wifi</mat-icon>

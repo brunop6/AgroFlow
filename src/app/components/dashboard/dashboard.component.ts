@@ -10,6 +10,7 @@ import { ConfigDialogComponent } from './config-dialog/config-dialog.component';
 import { WeatherService } from 'src/app/shared/services/weather.service';
 import { IrrigationService } from 'src/app/shared/services/irrigation.service';
 import { SensorService, SensorState } from 'src/app/shared/services/sensor.service';
+import * as turf from '@turf/turf';
 
 Chart.register(...registerables);
 
@@ -30,6 +31,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   protected totalSavings: number = 0;
   protected irrigationResults: boolean = false;
   protected sensorData: SensorState[] = [];
+  protected drawnArea: L.Polygon | null = null;
+  private drawnAreaGeoJSON: any = null;
+
+  public get sensorsInAreaCount(): number {
+    if (!this.sensorData) {
+      return 0;
+    }
+    return this.sensorData.filter(s => s.isInArea).length;
+  }
 
   constructor(
     protected weatherService: WeatherService,
@@ -50,7 +60,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }
     }
   }
-
+  
   ngOnInit(): void {
     this.sensorService.getSensorList().subscribe((data: SensorState[]) => {
       this.sensorData = data.filter(s => s.isAssociated && s.status === 'online');
@@ -144,7 +154,24 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.map.addControl(drawControl);
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
+      drawnItems.clearLayers();
       drawnItems.addLayer(layer);
+
+      this.drawnArea = layer;
+      this.drawnAreaGeoJSON = layer.toGeoJSON();
+
+      console.log("Área desenhada:", this.drawnAreaGeoJSON);
+
+      this.associateSensorsToArea();
+    });
+
+    this.map.on(L.Draw.Event.EDITED, (event: any) => {
+      const layers = event.layers;
+      layers.eachLayer(layer => {
+        this.drawnArea = layer;
+        this.drawnAreaGeoJSON = layer.toGeoJSON();
+        this.associateSensorsToArea();
+      });
     });
 
     async function reverseGeocode(lat: number, lng: number): Promise<string> {
@@ -166,6 +193,33 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         return null;
       }
     }
+  }
+
+  private associateSensorsToArea(): void {
+    if (!this.drawnAreaGeoJSON || this.sensorData.length === 0) {
+      return;
+    }
+
+    let sensorsInAreaCount = 0;
+    this.sensorData.forEach(sensor => {
+      if (sensor.lat && sensor.lon) {
+        const sensorPoint = turf.point([sensor.lon, sensor.lat]);
+
+        const isInside = turf.booleanPointInPolygon(sensorPoint, this.drawnAreaGeoJSON);
+
+        (sensor as any).isInArea = isInside;
+
+        if (isInside) {
+          sensorsInAreaCount++;
+          console.log(`Sensor '${sensor.name || sensor.id}' ESTÁ DENTRO da área.`);
+        }
+      } else {
+        (sensor as any).isInArea = false;
+      }
+    });
+
+    console.log(`${sensorsInAreaCount} sensor(es) encontrado(s) na área selecionada.`);
+    this.cdr.detectChanges();
   }
 
   async getWeatherData(lat: number, lon: number): Promise<void> {

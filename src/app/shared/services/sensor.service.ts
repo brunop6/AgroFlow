@@ -18,6 +18,7 @@ export interface SensorState extends SensorInterface {
   status: 'online' | 'offline';
   lat?: number;
   lon?: number;
+  isInArea?: boolean;
 }
 
 @Injectable({
