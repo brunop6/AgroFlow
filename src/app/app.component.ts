@@ -12,6 +12,7 @@ import { IrrigationService } from './shared/services/irrigation.service';
 })
 export class AppComponent {
   title = 'AgroFlow';
+  currentDate = new Date();
 
   // Adicionamos os serviços necessários ao construtor do AppComponent
   constructor(

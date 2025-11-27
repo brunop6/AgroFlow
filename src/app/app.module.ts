@@ -1,5 +1,7 @@
 // src/app/app.module.ts
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core'; // <--- Adicione LOCALE_ID
+import { registerLocaleData } from '@angular/common'; // <--- Importe isso
+import localePt from '@angular/common/locales/pt';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -27,6 +29,9 @@ import { AddSensorDialogComponent } from './components/dialogs/add-sensor-dialog
 import { SimulateSensorDialogComponent } from './components/dialogs/simulate-sensor-dialog/simulate-sensor-dialog.component';
 import { EditSensorDialogComponent } from './components/dialogs/edit-sensor-dialog/edit-sensor-dialog.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { MapaComponent } from './components/mapa/mapa.component';
+
+registerLocaleData(localePt);
 
 @NgModule({
   declarations: [
@@ -37,7 +42,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     AddSensorDialogComponent,
     EditSensorDialogComponent,
     SimulateSensorDialogComponent,
-    SidebarComponent
+    SidebarComponent,
+    MapaComponent
   ],
   imports: [
     BrowserModule,
@@ -56,7 +62,9 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     MatCardModule,
     MatTooltipModule
   ],
-  providers: [],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'pt-BR' }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

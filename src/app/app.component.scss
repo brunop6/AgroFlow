@@ -18,19 +18,78 @@
 }
 
 .top-header {
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  height: 80px;
+  /* Altura fixa e imponente */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  flex-shrink: 0;
+  padding: 0 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  /* Sombra suave e moderna */
+  z-index: 10;
+  /* Garante que fique acima do conteúdo ao rolar */
+  border-bottom: 1px solid #f0f0f0;
 
-  h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
+  .header-titles {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+    }
+
+    .date-display {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #6c757d;
+      font-weight: 500;
+      text-transform: capitalize;
+      /* Deixa a primeira letra do dia maiúscula */
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .notification-btn {
+      color: #555;
+      background-color: transparent;
+      transition: all 0.2s ease;
+      position: relative;
+
+      &:hover {
+        background-color: #f5f9f6;
+        /* Fundo verde bem claro */
+        color: #2e7d32;
+        /* Verde da marca */
+      }
+
+      mat-icon {
+        font-size: 24px;
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 8px;
+        height: 8px;
+        background-color: #ef4444;
+        /* Vermelho alerta */
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px #fff;
+      }
+    }
   }
 }
 

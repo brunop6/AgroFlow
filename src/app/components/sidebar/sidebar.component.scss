@@ -187,11 +187,17 @@ $animation-speed: 0.3s;
 
     .sidebar-footer {
         justify-content: center;
+        gap: 0;
+        /* <--- ADICIONE ISSO: Remove o espaço entre o avatar e o texto invisível */
+        padding-left: 0;
+        /* <--- Opcional: Garante centralização absoluta se houver padding */
+        padding-right: 0;
 
         .user-info {
             opacity: 0;
             width: 0;
             overflow: hidden;
+            /* display: none;  <-- Se a animação não for importante, use display: none para resolver de vez */
         }
     }
 }

@@ -1,0 +1,39 @@
+<div class="map-layout">
+  <aside class="map-sidebar">
+    <div class="sidebar-header">
+      <h3>Monitoramento de Culturas</h3>
+      <p class="subtitle">Visão geral das áreas</p>
+    </div>
+
+    <div class="culture-list">
+      <div class="culture-item" *ngFor="let item of cultureStats" 
+           [class.alert]="item.avgHumidity < item.minMoisture"
+           (click)="flyToCulture(item.sensors[0])">
+        <div class="culture-header">
+          <span class="culture-name">{{ item.name }}</span>
+          <span class="status-badge" [ngClass]="item.status">
+            {{ item.status === 'ok' ? 'Normal' : 'Atenção' }}
+          </span>
+        </div>
+        <div class="culture-stats">
+          <div class="stat">
+            <mat-icon>water_drop</mat-icon>
+            <span>{{ item.avgHumidity.toFixed(1) }}% (Méd.)</span>
+          </div>
+          <div class="stat">
+            <mat-icon>sensors</mat-icon>
+            <span>{{ item.sensors.length }} sensores</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="instructions">
+      <small><mat-icon>info</mat-icon> Use as ferramentas no mapa para desenhar novas áreas de plantio.</small>
+    </div>
+  </aside>
+
+  <div class="map-container">
+    <div id="full-map"></div>
+  </div>
+</div>

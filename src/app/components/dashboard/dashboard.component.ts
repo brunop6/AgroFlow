@@ -60,7 +60,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }
     }
   }
-  
+
   ngOnInit(): void {
     this.sensorService.getSensorList().subscribe((data: SensorState[]) => {
       this.sensorData = data.filter(s => s.isAssociated && s.status === 'online');
@@ -428,5 +428,34 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
     console.log('Configuração:', this.irrigationService.irrigationData.config);
     console.log('Irrigação calculada:', this.irrigationService.irrigationData.data);
+  }
+  // Adicione estes métodos ao seu componente TypeScript
+  getTotalIrrigation(): number {
+    if (!this.irrigationService.irrigationData?.data) return 0;
+    return this.irrigationService.irrigationData.data.reduce(
+      (total, item) => total + item.finalIrrigation, 0
+    );
+  }
+
+  getDayName(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', { weekday: 'short' });
+  }
+
+  getFormattedDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  getIrrigationStatus(irrigation: number): string {
+    if (irrigation > 10) return 'high';
+    if (irrigation > 5) return 'medium';
+    return 'low';
+  }
+
+  getIrrigationStatusText(irrigation: number): string {
+    if (irrigation > 10) return 'Alta Necessidade';
+    if (irrigation > 5) return 'Média Necessidade';
+    return 'Baixa Necessidade';
   }
 }
